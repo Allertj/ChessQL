@@ -18,6 +18,4 @@ class Query(ObjectType):
    def resolve_x(self, info):
       return "HELLO"
 
-
-
 schema = Schema(query=Query)

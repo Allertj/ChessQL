@@ -8,22 +8,22 @@ services:
       - POSTGRES_USER=${DBUSERNAME}
       - POSTGRES_PASSWORD=${DBPASSWORD}
       - POSTGRES_DB=${DBDATABASE}
-    # ports:
-      # - "${DBPORT}:5432"
+    ports:
+      - "${DBPORT}:5432"
     networks:
       - test_net      
-  flaskbackend: 
-    container_name: flaskbackend
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file: '.env' 
-    ports:
-      - ${PRODUCTION_PORT}:${PORT}      
-    networks:
-      - test_net
-    depends_on:
-      - 'postgresdb'  
+  # flaskbackend: 
+  #   container_name: flaskbackend
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file: '.env' 
+  #   ports:
+  #     - ${PRODUCTION_PORT}:${PORT}      
+  #   networks:
+  #     - test_net
+  #   depends_on:
+  #     - 'postgresdb'  
 
 networks:
   test_net:
