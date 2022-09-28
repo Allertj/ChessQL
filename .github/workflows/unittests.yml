@@ -5,6 +5,8 @@ on: [push]
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+      DOCKERFILE_FOR_COMPOSE: DockerfileRunTests
     steps:
     - uses: actions/checkout@v1
 
@@ -18,14 +20,27 @@ jobs:
     - uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-      # the package installation will only be executed when the
-      # requirements-files have changed.
     - run: pip install Cython
     - run: pip install -r requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-    - name: Test
-      run: python3.9 unittests.py
+
+    # - run: docker-compose build
+    - run: docker-compose up --build -d
+    - run: sleep 30s
+    - run: python unittests.py 
+    # - run: docker-compose up -d
+    # - name: Test
+      # run: docker-compose up --exit-code-from flaskbackend
+      # run: docker-compose run --rm --entrypoint "python3 app/unittest.py"    
+      # run: docker-compose run --rm --entrypoint "python3 manage.py test" app
+  # test: &test
+  #   <<: *default
+  #   volumes: 
+  #   - .:/app
+  #   environment: { TEST }
+  #   command: test/approve
+
 # name: Python package
 
 # on: [push]

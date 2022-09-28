@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgresdb:
-    container_name: postgresdbname
+    container_name: postgresdb
     image: postgres:14.1-alpine
     restart: always
     environment:
@@ -16,7 +16,7 @@ services:
   #   container_name: flaskbackend
   #   build:
   #     context: .
-  #     dockerfile: Dockerfile
+  #     dockerfile: ${DOCKERFILE_FOR_COMPOSE}
   #   env_file: '.env' 
   #   ports:
   #     - ${PRODUCTION_PORT}:${PORT}      
