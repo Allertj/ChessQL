@@ -1,6 +1,12 @@
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from database.models import User as UserModel, Games as GameModel
-from graphene import relay, ObjectType, Schema, String, Field
+from database.create import create_user, get_user_by_email, login_user, create_new_game
+from graphene import relay, ObjectType, Schema, String, Field, Mutation, Boolean, Int, List
+from graphql import GraphQLError
+from werkzeug.security import check_password_hash
+from .login import Login
+from .signup import Signup
+from flask_jwt_extended import jwt_required, decode_token, exceptions
 
 class User(SQLAlchemyObjectType):
     class Meta:
@@ -12,37 +18,60 @@ class Games(SQLAlchemyObjectType):
         model = GameModel
         interfaces = (relay.Node,)        
 
-class Customer(ObjectType):
-    id = String()
-    name = String()
-    email = String()
-    password  = String()
+class SendMove(Mutation):
+    class Arguments:
+        move = String()
 
-    def resolve_id(self, info):
-        return "HELLO TEST"
+    result = String()
 
-    def resolve_name(self, info):
-        return "NAME TEST"
+    @jwt_required()
+    def mutate(self, info, move):
+        return SendMove(result="EMAIL TEST")        
 
-    def resolve_email(self, test):
-        return "EMAIL TEST"        
+class StartGame(Mutation):
+    class Arguments:
+        userid = Int()
+    
+    result = String()
+    # new_game = SQLAlchemyConnectionField(Games.connection)
+
+    # @jwt_required()
+    def mutate(self, info, userid):
+        game = create_new_game(userid)
+        if type(game) is str:
+            raise GraphQLError(game)
+        else:    
+            # print(game.player0id)
+            print(dir(Games))
+            return StartGame(result=game["msg"])        
+
+class MyMutations(ObjectType):
+    signup = Signup.Field()
+    login = Login.Field()
+    sendMove = SendMove.Field()
+    startGame = StartGame.Field()
 
 
+# class Users(ObjectType):
+    # users = List(lambda: UserModel)
 
-class Something(ObjectType):
-   x = String()
-   def resolve_x(self, info):
-      return "HELLO"
 
 class Query(ObjectType):
     node = relay.Node.Field()
-    # something = Something()
-    customer = Field(Customer)
-    def resolve_customer(parent, info):
-        return "HELLO"
-    # users = List(lambda: User, username=String())
-    allUsers = SQLAlchemyConnectionField(User)
-    allGames = SQLAlchemyConnectionField(Games)
-    allPets = SQLAlchemyConnectionField(Games)
+    # users = Field(Users)
+    # customer = Field(Customer)
+    # all_tuitions = FilterableConnectionField(TuitionObject, filters=TuitionFilter())
+    all_users = String()
+        # return Something(customer="HELLO")
+    # all_users = List(lambda: User, username=String())
+    # all_users = SQLAlchemyConnectionField(User)
+    # allGames = SQLAlchemyConnectionField(Games)
+
+    def resolve_all_users(parent, info):
+        # print(UserModel.query)
+        print(dir(UserModel))
+        # users = UserModel.query.all()
+        return "GOODDAY"
     
-schema = Schema(query=Query, types=[User, Games])        
+# schema = Schema(query=Query, types=[User, Games], mutation=MyMutations)         
+schema = Schema(query=Query, mutation=MyMutations)   

@@ -3,44 +3,40 @@ import os
 from dotenv import load_dotenv
 
 from flask import Flask
-from database.create import create_db
+from flask_jwt_extended import JWTManager
 from flask_graphql import GraphQLView
-# from schema.schema import schema
 
+from database.create import create_db
 from schema.objects import schema
 
-load_dotenv()
+def create_app():
+    load_dotenv()
+    database_url = "postgresql://" + os.environ["DBUSERNAME"] + ":" \
+                                + os.environ["DBPASSWORD"] + "@" \
+                                + os.environ["DBHOST"] + ":" \
+                                + os.environ["DBPORT"] + "/" \
+                                + os.environ["DBDATABASE"]
 
-database_url = "postgresql://" + os.environ["DBUSERNAME"] + ":" \
-                               + os.environ["DBPASSWORD"] + "@" \
-                               + os.environ["DBHOST"] + ":" \
-                               + os.environ["DBPORT"] + "/" \
-                               + os.environ["DBDATABASE"]
+    app = Flask(__name__)
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["JWT_HEADER_NAME"] = "x-access-token"
+    app.config["JWT_HEADER_TYPE"] = ""
+    app.config["JWT_SECRET_KEY"] = str(os.environ.get("JWT_SECRET KEY"))
+    
+    JWTManager(app)
+    create_db(app, database_url)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-create_db(app, database_url)
+    @app.route('/hello')
+    def test():
+        return "TEST OK!"
 
-@app.route('/hello')
-def test():
-    return "TEST OK!"
-
-app.add_url_rule("/graphql", view_func=GraphQLView.as_view('graphql', schema=schema, graphiql=True))
-
-
-
+    app.add_url_rule("/graphql", view_func=GraphQLView.as_view('graphql', schema=schema, graphiql=True))
+    return app
 
 if __name__ == '__main__':
-
-
-    # print(DBDATABASE)
-    from database.models import User, db 
-    user = User(username="ALLERT", email="HELLO", password="HELLO", open_games = 0)    
-    # # # try:
-    with app.app_context():
-        db.session.add(user)
-        db.session.commit()
+    app = create_app()
     host = "0.0.0.0"
     port = int(os.environ.get("PORT"))
     app.run(host, port)
