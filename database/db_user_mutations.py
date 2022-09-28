@@ -47,3 +47,8 @@ def promote_user_to_admin(userid):
     db.session.add(Admin(id=userid))
     db.session.commit()
 
+def delete_user_by_id(userid):
+    User.query.filter_by(id=userid).delete()
+
+def demote_user_to_commoner(userid):    
+    Admin.query.filter_by(id=userid).delete()
