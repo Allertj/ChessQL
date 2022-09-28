@@ -1,23 +1,55 @@
-# from graphene import Schema, ObjectType, String
-# from database.models import User as UserModel, Games as GameModel
-# from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-# from graphene import relay, ObjectType, Schema
+from database.models import User as UserModel, Games as GameModel, Admin
+from graphene import relay, ObjectType, Schema, Field, Int, List
+from graphql import GraphQLError
+from .login import Login
+from .signup import Signup
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from .admin_required import admin_required
+from .mutations.send_move import SendMove
+from .mutations.start_game import StartGame
+from .objects import Games, User
 
-# class User(SQLAlchemyObjectType):
-#     class Meta:
-#         model = UserModel
-#         interfaces = (relay.Node,)
+class MyMutations(ObjectType):
+    signup = Signup.Field()
+    login = Login.Field()
+    sendMove = SendMove.Field()
+    startGame = StartGame.Field()
+    
+class Query(ObjectType):
+    # node = relay.Node.Field()
+    all_users = List(User)
+    all_games = List(Games)
+    admins = List(User)
+    game = Field(Games, gameid=Int())
+    user = Field(User, userid=Int())
 
-# class Games(SQLAlchemyObjectType):
-#     class Meta:
-#         model = GameModel
-#         interfaces = (relay.Node,)  
+    @jwt_required()
+    def resolve_user(parent, info, userid):
+        if get_jwt_identity() == userid or get_jwt_identity() == "admin_user":
+            return UserModel.query.filter_by(id=userid).first()
+        else:
+            raise GraphQLError("Clients can only view their own data.")
 
-# class Query(ObjectType):
-#    x = String()
-#    def resolve_x(self, info):
-#       return "HELLO"
+    @jwt_required()
+    def resolve_game(parent, info, gameid):
+        caller = get_jwt_identity()
+        game = GameModel.query.filter_by(id=gameid).first()
+        if game.player1id == caller or game.player0id == caller or caller == "admin_user":
+            return game
+        else:
+            raise GraphQLError("Client is not a participant in this game")
 
+    @admin_required()
+    def resolve_all_users(parent, info):
+        return UserModel.query.all()
 
+    @admin_required()
+    def resolve_all_games(parent, info):
+        return GameModel.query.all()
 
-# schema = Schema(query=Query)
+    @admin_required()
+    def resolve_admins(parent, info):
+        ids = [admin.id for admin in Admin.query.all()]
+        return UserModel.query.filter(UserModel.id.in_(ids)).all()
+
+schema = Schema(query=Query, mutation=MyMutations)   

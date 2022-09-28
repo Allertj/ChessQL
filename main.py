@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask_graphql import GraphQLView
 
 from database.create import create_db
-from schema.objects import schema
+from schema.schema import schema
 
 def create_app():
     load_dotenv()

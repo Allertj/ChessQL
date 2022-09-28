@@ -2,33 +2,36 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(255), unique=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255)) 
-    stats = db.Column(db.String(60), default= """{"W":0, "D":0, "L":0}""")
+    wins = db.Column(db.Integer, default=0, nullable=False)
+    draws = db.Column(db.Integer, default=0,  nullable=False)
+    loses = db.Column(db.Integer, default=0,  nullable=False)
     open_games = db.Column(db.Integer, default=0, nullable=False)
 
     def __repr__(self):
         return f"""USER: {self.id}, 
                    username: {self.username} 
                    email: {self.email} 
-                   stats: {self.stats} 
-                   open games: ${self.open_games}"""
-    # open_games_ids = db.relationship('Games', backref='games', lazy=True)
-    # roles = db.relationship('Role', backref='roles', lazy=True)
+                   wins: {self.wins} 
+                   draw: {self.draws}
+                   loses: {self.loses} 
+                   open games: {self.open_games}"""
 
-# class Role(db.Model):
-    # name = db.Column(db.String(255), primary_key=True)
+class Admin(db.Model):
+    id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
 
 class Games(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    player0id = db.Column(db.String(10))
-    player1id = db.Column(db.String(10))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    player0id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    player1id = db.Column(db.Integer, db.ForeignKey('user.id'))
     status = db.Column(db.String(20))
     result = db.Column(db.String(20))
-    time_started = db.Column(db.String(40))
-    last_change = db.Column(db.String(40))
+    time_started = db.Column(db.DateTime)
+    last_change = db.Column(db.DateTime)
+    turn = db.Column(db.Integer, db.ForeignKey('user.id'))
     unverified_move = db.Column(db.String(20))
     draw_proposed = db.Column(db.String(20))
     gameasjson = db.Column(db.String(4000))
@@ -39,5 +42,3 @@ class Games(db.Model):
                    player0id: {self.player0id} 
                    status: {self.status} 
                    result: {self.result}"""
-
-

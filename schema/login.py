@@ -1,6 +1,6 @@
 from graphene import String, Field, Mutation
 from graphql import GraphQLError
-from database.create import login_user 
+from database.db_user_mutations import login_user 
 from .response_types import LoggedInUser
 
 class Login(Mutation):
@@ -16,9 +16,11 @@ class Login(Mutation):
             raise GraphQLError(user)
         else:
             result = LoggedInUser(id=user["id"], 
-                            username=user["username"], 
-                            email=user["email"], 
-                            stats=user["stats"], 
-                            open_games=user["open_games"],
-                            accessToken=user["accessToken"])
+                                  username=user["username"], 
+                                  email=user["email"], 
+                                  wins=user["wins"],
+                                  draws=user["draws"],
+                                  loses=user["loses"], 
+                                  open_games=user["open_games"],
+                                  accessToken=user["accessToken"])
             return Login(result=result)    

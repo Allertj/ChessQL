@@ -1,6 +1,6 @@
 from graphene import String, Field, Mutation
 from graphql import GraphQLError
-from database.create import create_user 
+from database.db_user_mutations import create_user 
 from .response_types import UserR
 
 class Signup(Mutation):
@@ -19,6 +19,8 @@ class Signup(Mutation):
             result = UserR(id=user.id, 
                             username=user.username, 
                             email=user.email, 
-                            stats=user.stats, 
+                            wins=user.wins, 
+                            draws=user.draws,
+                            loses=user.loses,
                             open_games=user.open_games)
             return Signup(result=result)

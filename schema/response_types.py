@@ -4,7 +4,9 @@ class UserR(ObjectType):
     id = Int()
     username = String()
     email = String()
-    stats = String()
+    wins = Int()
+    draws = Int()
+    loses = Int()
     open_games = Int()
 
 class LoggedInUser(UserR):

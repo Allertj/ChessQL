@@ -1,77 +1,30 @@
+from functools import wraps
+# import re
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
-from database.models import User as UserModel, Games as GameModel
-from database.create import create_user, get_user_by_email, login_user, create_new_game
+from database.models import User as UserModel, Games as GameModel, Admin
+# from database.db_user_mutations import create_user, get_user_by_email, login_user, create_new_game, join_game, promote_user_to_admin
 from graphene import relay, ObjectType, Schema, String, Field, Mutation, Boolean, Int, List
 from graphql import GraphQLError
-from werkzeug.security import check_password_hash
+
 from .login import Login
 from .signup import Signup
-from flask_jwt_extended import jwt_required, decode_token, exceptions
-
-class User(SQLAlchemyObjectType):
-    class Meta:
-        model = UserModel
-        interfaces = (relay.Node,)
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
+from .admin_required import admin_required
 
 class Games(SQLAlchemyObjectType):
     class Meta:
         model = GameModel
         interfaces = (relay.Node,)        
 
-class SendMove(Mutation):
-    class Arguments:
-        move = String()
+class User(SQLAlchemyObjectType):
+    class Meta:
+        model = UserModel
+        interfaces = (relay.Node,)
+    games = List(Games)    
 
-    result = String()
-
-    @jwt_required()
-    def mutate(self, info, move):
-        return SendMove(result="EMAIL TEST")        
-
-class StartGame(Mutation):
-    class Arguments:
-        userid = Int()
-    
-    result = String()
-    # new_game = SQLAlchemyConnectionField(Games.connection)
-
-    # @jwt_required()
-    def mutate(self, info, userid):
-        game = create_new_game(userid)
-        if type(game) is str:
-            raise GraphQLError(game)
-        else:    
-            # print(game.player0id)
-            print(dir(Games))
-            return StartGame(result=game["msg"])        
-
-class MyMutations(ObjectType):
-    signup = Signup.Field()
-    login = Login.Field()
-    sendMove = SendMove.Field()
-    startGame = StartGame.Field()
-
-
-# class Users(ObjectType):
-    # users = List(lambda: UserModel)
-
-
-class Query(ObjectType):
-    node = relay.Node.Field()
-    # users = Field(Users)
-    # customer = Field(Customer)
-    # all_tuitions = FilterableConnectionField(TuitionObject, filters=TuitionFilter())
-    all_users = String()
-        # return Something(customer="HELLO")
-    # all_users = List(lambda: User, username=String())
-    # all_users = SQLAlchemyConnectionField(User)
-    # allGames = SQLAlchemyConnectionField(Games)
-
-    def resolve_all_users(parent, info):
-        # print(UserModel.query)
-        print(dir(UserModel))
-        # users = UserModel.query.all()
-        return "GOODDAY"
-    
-# schema = Schema(query=Query, types=[User, Games], mutation=MyMutations)         
-schema = Schema(query=Query, mutation=MyMutations)   
+    def resolve_games(parent, info):
+        if info.path[0] == "allUsers":
+            gameid = str(info.path[1])
+            white_games =  GameModel.query.filter_by(player0id=gameid).all()
+            black_games =  GameModel.query.filter_by(player1id=gameid).all()
+            return white_games + black_games
