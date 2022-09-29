@@ -16,7 +16,6 @@ def create_app():
                                 + os.environ["DBHOST"] + ":" \
                                 + os.environ["DBPORT"] + "/" \
                                 + os.environ["DBDATABASE"]
-
     app = Flask(__name__)
     
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -27,10 +26,6 @@ def create_app():
     
     JWTManager(app)
     create_db(app, database_url)
-
-    @app.route('/hello')
-    def test():
-        return "TEST OK!"
 
     app.add_url_rule("/graphql", view_func=GraphQLView.as_view('graphql', schema=schema, graphiql=True))
     return app

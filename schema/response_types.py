@@ -1,7 +1,7 @@
 from graphene import ObjectType, String, Int
 
 class UserR(ObjectType):
-    id = Int()
+    userid = Int()
     username = String()
     email = String()
     wins = Int()

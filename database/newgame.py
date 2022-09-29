@@ -273,7 +273,7 @@ game = """{
 		}
 	  ]
 	],
-	"id": 0,
+	"gameid": 0,
 	"turn": 1,
 	"color": "2",
 	"status": "Playing",

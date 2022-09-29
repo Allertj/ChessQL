@@ -26,12 +26,12 @@ def join_game(userid):
         return "User not found"  
     if user.open_games >= MAX_OPEN_GAMES:
         return "All Slots filled"
-    game =  Games.query.filter(Games.player0id != str(user.id), Games.player1id == "0").first()
+    game =  Games.query.filter(Games.player0id != str(user.userid), Games.player1id == 1).first()
     if game:
         start_game(game, user)
         return {"msg": "Joined New Game. Ready to play", "game": game }
     if not game:
-        game = create_new_game(user.id)        
+        game = create_new_game(user.userid)        
         return {"msg": "New game created. Invite open.", "game": game }
 
 def end_game(game):
@@ -46,10 +46,17 @@ def start_game(game, user):
     game.time_started = datetime.datetime.now()
     game.last_change = datetime.datetime.now()
     game.status = "Playing"
-    game.player1id = user.id  
+    game.player1id = user.userid  
     game.turn = game.player0id
     user.open_games += 1 
     db.session.commit()
+
+def check_if_user_is_participant(gameid, userid):
+    game = Games.query.filter_by(gameid=gameid).first()
+    return game.player1id == userid or game.player0id == userid
+
+def delete_game_by_id(gameid):
+    Games.query.filter_by(gameid=gameid).delete()
 
 def change_element_in_db(gameid, dict_of_changes):
     game = get_game_by_id(gameid)

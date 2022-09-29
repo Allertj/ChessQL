@@ -5,7 +5,7 @@ from .models import User, Games, Admin, db
 
 def generate_access_token(userid):
     access_token = create_access_token(userid) 
-    admin_role = Admin.query.filter_by(id=userid).first()
+    admin_role = Admin.query.filter_by(adminid=userid).first()
     if admin_role:
         access_token = create_access_token(
             "admin_user", additional_claims={"is_administrator": True})
@@ -16,14 +16,14 @@ def login_user(email, password):
     if not user:
         return "Unknown user"
     if check_password_hash(user.password, password):
-        return {"id":    user.id,
+        return {"userid":    user.userid,
             "wins": user.wins,
             "draws": user.draws,
             "loses": user.loses,
             "username": user.username,
             "email": user.email,
             "open_games": user.open_games,
-            "accessToken": generate_access_token(user.id)}
+            "accessToken": generate_access_token(user.userid)}
     return "Invalid password"    
 
 def create_user(username, email, password):
@@ -44,11 +44,11 @@ def create_user(username, email, password):
             return f"Failed because of ${e.args[0]}" 
 
 def promote_user_to_admin(userid):
-    db.session.add(Admin(id=userid))
+    db.session.add(Admin(adminid=userid))
     db.session.commit()
 
 def delete_user_by_id(userid):
-    User.query.filter_by(id=userid).delete()
+    User.query.filter_by(userid=userid).delete()
 
 def demote_user_to_commoner(userid):    
-    Admin.query.filter_by(id=userid).delete()
+    Admin.query.filter_by(adminid=userid).delete()

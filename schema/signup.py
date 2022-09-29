@@ -16,7 +16,7 @@ class Signup(Mutation):
         if type(user) is str:
             raise GraphQLError(user)    
         else:    
-            result = UserR(id=user.id, 
+            result = UserR(userid=user.userid, 
                             username=user.username, 
                             email=user.email, 
                             wins=user.wins, 

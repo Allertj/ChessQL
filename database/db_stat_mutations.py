@@ -4,7 +4,7 @@ from .models import User, db
 from .db_game_mutations import end_game
 
 def get_user_stats(userid):
-    user =  User.query.filter_by(id=userid).first()
+    user =  User.query.filter_by(userid=userid).first()
     if user:
         return { "stats": json.loads(user.stats), "open_games" : user.open_games}
     else:

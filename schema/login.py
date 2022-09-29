@@ -15,7 +15,7 @@ class Login(Mutation):
         if type(user) is str:
             raise GraphQLError(user)
         else:
-            result = LoggedInUser(id=user["id"], 
+            result = LoggedInUser(userid=user["userid"], 
                                   username=user["username"], 
                                   email=user["email"], 
                                   wins=user["wins"],
