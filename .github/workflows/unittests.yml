@@ -9,7 +9,6 @@ jobs:
       DOCKERFILE_FOR_COMPOSE: DockerfileRunTests
     steps:
     - uses: actions/checkout@v1
-
     - uses: actions/setup-python@v2
 
     - uses: syphar/restore-virtualenv@v1
@@ -24,22 +23,9 @@ jobs:
     - run: pip install -r requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-
-    # - run: docker-compose build
     - run: docker-compose up --build -d
     - run: sleep 30s
     - run: python unittests.py 
-    # - run: docker-compose up -d
-    # - name: Test
-      # run: docker-compose up --exit-code-from flaskbackend
-      # run: docker-compose run --rm --entrypoint "python3 app/unittest.py"    
-      # run: docker-compose run --rm --entrypoint "python3 manage.py test" app
-  # test: &test
-  #   <<: *default
-  #   volumes: 
-  #   - .:/app
-  #   environment: { TEST }
-  #   command: test/approve
 
 # name: Python package
 

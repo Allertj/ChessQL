@@ -16,7 +16,7 @@ services:
   #   container_name: flaskbackend
   #   build:
   #     context: .
-  #     dockerfile: ${DOCKERFILE_FOR_COMPOSE}
+  #     dockerfile: Dockerfile
   #   env_file: '.env' 
   #   ports:
   #     - ${PRODUCTION_PORT}:${PORT}      
