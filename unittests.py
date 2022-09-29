@@ -27,7 +27,6 @@ class MyTest(TestCase):
         result = schema.execute(res)
         if for_test:
             return result.to_dict()["data"]["signup"]["user"]
-        print(result)    
         return result.to_dict()["data"]["signup"]["user"]["userid"] 
 
     def mock_login(self, email, passw, for_test=False):
@@ -93,7 +92,6 @@ class MyTest(TestCase):
         user, email, passw = self.create_random_login()
         id = self.mock_signup(user, email, passw)
         result = self.mock_login(email, passw, True)
-        print(result)
         self.assertEqual(result["username"], user)
         self.assertEqual(result["email"], email)
         self.assertEqual(result["wins"], 0)

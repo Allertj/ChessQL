@@ -35,4 +35,8 @@ if __name__ == '__main__':
     app = create_app()
     host = "0.0.0.0"
     port = int(os.environ.get("PORT"))
-    app.run(host, port)
+    production = bool(os.environ.get("PRODUCTION"))
+    if production:
+        eventlet.wsgi.server(eventlet.listen((host, port)), app) 
+    else:        
+        app.run(host, port)

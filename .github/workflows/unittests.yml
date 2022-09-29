@@ -7,7 +7,11 @@ jobs:
     name: Run Python Unittests
     runs-on: ubuntu-latest
     env:
-      DOCKERFILE_FOR_COMPOSE: DockerfileRunTests
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      DB_SECRET_KEY: ${{ secrets.DB_SECRET_KEY }}
+      DBUSERNAME: ${{ secrets.DBUSERNAME }}
+      DBPASSWORD: ${{ secrets.DBPASSWORD }}
+      DBDATABASE: ${{ secrets.DBDATABASE }}
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v2
