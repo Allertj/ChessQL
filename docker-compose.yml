@@ -27,6 +27,3 @@ services:
 
 networks:
   test_net:
-# volumes:
-#   db:
-#     driver: local

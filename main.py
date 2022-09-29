@@ -1,4 +1,5 @@
 import os
+import eventlet
 
 from dotenv import load_dotenv
 
